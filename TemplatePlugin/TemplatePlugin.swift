@@ -13,7 +13,7 @@ public final class TemplatePluginExtension: Extension {
       ),
       compatibility: ExtensionDeclarationCompatibility(
         minTuna: "0.79",
-        minTunaKit: "1.12.0"
+        minTunaKit: "1.13.0"
       ),
       catalogs: [
         CatalogDeclaration(
