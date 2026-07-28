@@ -78,7 +78,7 @@ jobs:
           printf '%s\n' \
             '#!/usr/bin/env python3' \
             'import json' \
-            'print(json.dumps({"identifier": "com.example.TemplatePlugin", "name": "Sample Extension", "author": "Your Name", "description": "Describe what your extension provides.", "icon_name": "puzzlepiece.extension", "type": "extension", "compatibility": {"min_tuna": "0.79", "min_tunakit": "1.12.0"}}))' \
+            'print(json.dumps({"identifier": "com.example.TemplatePlugin", "name": "Sample Extension", "author": "Your Name", "description": "Describe what your extension provides.", "icon_name": "puzzlepiece.extension", "type": "extension", "compatibility": {"min_tuna": "0.80", "min_tunakit": "1.14.0"}}))' \
             > "$declaration_reader"
           chmod +x "$declaration_reader"
 
@@ -97,8 +97,8 @@ jobs:
           assert package.is_file()
           assert item["id"] == "com.example.TemplatePlugin"
           assert item["version"] == "1.0"
-          assert item["compatibility"]["min_tuna"] == "0.79"
-          assert item["compatibility"]["min_tunakit"] == "1.12.0"
+          assert item["compatibility"]["min_tuna"] == "0.80"
+          assert item["compatibility"]["min_tunakit"] == "1.14.0"
           assert item["download"]["checksum_sha256"] == hashlib.sha256(
               package.read_bytes()
           ).hexdigest()
@@ -106,8 +106,8 @@ jobs:
           with ZipFile(package) as archive:
               manifest = json.loads(archive.read("tunaextension.json"))
               assert manifest["id"] == "com.example.TemplatePlugin"
-              assert manifest["compatibility"]["min_tuna"] == "0.79"
-              assert manifest["compatibility"]["min_tunakit"] == "1.12.0"
+              assert manifest["compatibility"]["min_tuna"] == "0.80"
+              assert manifest["compatibility"]["min_tunakit"] == "1.14.0"
               assert "payload.sha256" in archive.namelist()
               assert any(
                   name.startswith("Payload/TemplatePlugin.framework/")
