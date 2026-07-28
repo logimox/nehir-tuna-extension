@@ -1,7 +1,7 @@
 # Tuna Extension Starter
 
 > [!IMPORTANT]
-> This repository describes the extension platform planned for Tuna 0.79. Tuna 0.79 has not been
+> This repository describes the extension platform planned for Tuna 0.80. Tuna 0.80 has not been
 > released yet; the current public app is Tuna 0.78, so treat the instructions, compatibility
 > versions, and examples below as a release preview.
 
@@ -35,7 +35,7 @@ versions you actually test before distributing your extension; packaging fails i
 For a one-off package, override the packaged compatibility values without editing the declaration:
 
 ```bash
-MIN_TUNA=0.79 MIN_TUNAKIT=1.13.0 MIN_MACOS=15.0 \
+MIN_TUNA=0.80 MIN_TUNAKIT=1.14.0 MIN_MACOS=15.0 \
   ./scripts/tuna-extension package
 ```
 

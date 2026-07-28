@@ -12,8 +12,8 @@ public final class TemplatePluginExtension: Extension {
         iconName: "puzzlepiece.extension"
       ),
       compatibility: ExtensionDeclarationCompatibility(
-        minTuna: "0.79",
-        minTunaKit: "1.13.0"
+        minTuna: "0.80",
+        minTunaKit: "1.14.0"
       ),
       catalogs: [
         CatalogDeclaration(
