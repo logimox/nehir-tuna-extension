@@ -21,6 +21,6 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>NSPrincipalClass</key>
-	<string>$(PRODUCT_MODULE_NAME).TemplatePluginExtension</string>
+	<string>$(PRODUCT_MODULE_NAME).NehirExtension</string>
 </dict>
 </plist>

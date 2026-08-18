@@ -1,0 +1,162 @@
+import Foundation
+import TunaKit
+
+@MainActor
+final class NehirCatalog: NSObject, Catalog {
+  let identifier: String
+  let name: String
+  private(set) var objects: [CatalogItem] = []
+
+  required init(definition: CatalogDefinition) {
+    identifier = definition.identifier
+    name = definition.name
+    super.init()
+  }
+
+  func scan() async {
+    do {
+      let windows = try NehirCLI.run(["query", "windows", "--format", "json"])
+      let workspaces = try NehirCLI.run(["query", "workspaces", "--format", "json"])
+      objects = try NehirItemFactory.makeItems(windowsJSON: windows, workspacesJSON: workspaces)
+    } catch {
+      objects = [CatalogItem(id: "ipc-unavailable", title: "Nehir IPC is unavailable", type: .entity)]
+    }
+    reportScanFinished()
+  }
+}
+
+/// Runs the official Nehir CLI, which safely reads its local IPC authorization.
+enum NehirCLI {
+  static func run(_ arguments: [String]) throws -> Data {
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/opt/homebrew/bin/nehirctl")
+    process.arguments = arguments
+    let output = Pipe()
+    let errors = Pipe()
+    process.standardOutput = output
+    process.standardError = errors
+    try process.run()
+    process.waitUntilExit()
+    let data = output.fileHandleForReading.readDataToEndOfFile()
+    guard process.terminationStatus == 0 else {
+      let error = String(data: errors.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? "Nehir command failed"
+      throw NSError(domain: "Nehir", code: Int(process.terminationStatus), userInfo: [NSLocalizedDescriptionKey: error])
+    }
+    return data
+  }
+}
+
+final class NehirWindowItem: CatalogEntity, @unchecked Sendable {
+  let windowID: String
+  let detailText: String
+
+  init(windowID: String, title: String, detail: String) {
+    self.windowID = windowID
+    self.detailText = detail
+    super.init(id: "window:\(windowID)", title: title, path: nil)
+    typeID = .entity
+  }
+
+  override var detail: String? { detailText }
+}
+
+final class NehirWorkspaceItem: CatalogEntity, @unchecked Sendable {
+  /// Nehir commands switch by numeric workspace number, not its persistent UUID.
+  let workspaceNumber: String
+
+  init(workspaceID: String, workspaceNumber: String, title: String) {
+    self.workspaceNumber = workspaceNumber
+    super.init(id: "workspace:\(workspaceID)", title: title, path: nil)
+    typeID = .entity
+  }
+
+  override var detail: String? { "Nehir workspace" }
+}
+
+final class NehirActionsCatalog: NSObject, ActionCatalog {
+  let identifier: String
+  let name: String
+  private(set) lazy var actions: [CatalogAction] = [focusWindow, navigateToWindow, switchWorkspace]
+
+  required init(definition: ActionCatalogDefinition) {
+    identifier = definition.identifier
+    name = definition.name
+    super.init()
+  }
+
+  private lazy var focusWindow: CatalogAction = windowAction(id: "focus-window", title: "Focus Nehir Window", operation: "focus")
+  private lazy var navigateToWindow: CatalogAction = windowAction(id: "navigate-to-window", title: "Navigate to Nehir Window", operation: "navigate")
+
+  private func windowAction(id: String, title: String, operation: String) -> CatalogAction {
+    let action = PredicateAwareAction(id: id, title: title, type: .action) { subject, _ in
+      guard let window = subject as? NehirWindowItem else { return .failure("Select a Nehir window.") }
+      do {
+        _ = try NehirCLI.run(["window", operation, window.windowID])
+        return .success
+      } catch { return .failure(error.localizedDescription) }
+    }
+    action.subjectPredicate = { $0 is NehirWindowItem }
+    action.systemSymbolName = "macwindow"
+    return action
+  }
+
+  private lazy var switchWorkspace: CatalogAction = {
+    let action = PredicateAwareAction(id: "switch-workspace", title: "Switch to Nehir Workspace", type: .action) { subject, _ in
+      guard let workspace = subject as? NehirWorkspaceItem else { return .failure("Select a Nehir workspace.") }
+      do {
+        _ = try NehirCLI.run(["command", "switch-workspace", workspace.workspaceNumber])
+        return .success
+      } catch { return .failure(error.localizedDescription) }
+    }
+    action.subjectPredicate = { $0 is NehirWorkspaceItem }
+    action.systemSymbolName = "rectangle.3.group"
+    return action
+  }()
+}
+
+private enum NehirItemFactory {
+  static func makeItems(windowsJSON: Data, workspacesJSON: Data) throws -> [CatalogItem] {
+    let windows = try JSONSerialization.jsonObject(with: windowsJSON) as? [String: Any] ?? [:]
+    let workspaces = try JSONSerialization.jsonObject(with: workspacesJSON) as? [String: Any] ?? [:]
+    var items: [CatalogItem] = []
+
+    for row in payloadRows(windows) {
+      guard let id = string(row["id"]) else { continue }
+      let app = objectString(row["app"], key: "name") ?? "Unknown App"
+      let title = string(row["title"]) ?? "Untitled"
+      let workspace = objectString(row["workspace"], key: "displayName") ?? ""
+      items.append(NehirWindowItem(windowID: id, title: "\(app): \(title)", detail: workspace.isEmpty ? "Nehir window" : "Workspace \(workspace)"))
+    }
+
+    for row in payloadRows(workspaces) {
+      guard let id = string(row["id"]) else { continue }
+      let title = string(row["displayName"]) ?? string(row["rawName"]) ?? "Workspace \(id)"
+      let number = string(row["number"]) ?? title
+      items.append(NehirWorkspaceItem(workspaceID: id, workspaceNumber: number, title: title))
+    }
+    return items
+  }
+
+  private static func payloadRows(_ response: [String: Any]) -> [[String: Any]] {
+    let result = response["result"] as? [String: Any] ?? [:]
+    let payload = result["payload"]
+    if let rows = payload as? [[String: Any]] { return rows }
+    if let dictionary = payload as? [String: Any] {
+      for value in dictionary.values {
+        if let rows = value as? [[String: Any]] { return rows }
+      }
+    }
+    return []
+  }
+
+  private static func objectString(_ value: Any?, key: String) -> String? {
+    guard let object = value as? [String: Any] else { return nil }
+    return string(object[key])
+  }
+
+  private static func string(_ value: Any?) -> String? {
+    if let value = value as? String { return value }
+    if let value = value as? NSNumber { return value.stringValue }
+    return nil
+  }
+}

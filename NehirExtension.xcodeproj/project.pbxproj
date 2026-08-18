@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7D1F5EA12FB6B8F700C7A1D1 /* TemplatePlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1F5E9E2FB6B8F700C7A1D1 /* TemplatePlugin.swift */; };
+		7D1F5EA12FB6B8F700C7A1D1 /* NehirExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1F5E9E2FB6B8F700C7A1D1 /* NehirExtension.swift */; };
 		7D1F5EA22FB6B8F700C7A1D1 /* SampleCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1F5E9F2FB6B8F700C7A1D1 /* SampleCatalog.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		7D1F5E9B2FB6B85200C7A1D1 /* TemplatePlugin.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TemplatePlugin.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		7D1F5E9E2FB6B8F700C7A1D1 /* TemplatePlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplatePlugin.swift; sourceTree = "<group>"; };
+		7D1F5E9B2FB6B85200C7A1D1 /* NehirExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NehirExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7D1F5E9E2FB6B8F700C7A1D1 /* NehirExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NehirExtension.swift; sourceTree = "<group>"; };
 		7D1F5E9F2FB6B8F700C7A1D1 /* SampleCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleCatalog.swift; sourceTree = "<group>"; };
 		7D1F5EA02FB6B8F700C7A1D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -32,25 +32,25 @@
 		7D1F5E642FB6B6A100C7A1D1 = {
 			isa = PBXGroup;
 			children = (
-				7D1F5E9C2FB6B85200C7A1D1 /* TemplatePlugin */,
+				7D1F5E9C2FB6B85200C7A1D1 /* NehirExtension */,
 				7D1F5E9D2FB6B85200C7A1D1 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		7D1F5E9C2FB6B85200C7A1D1 /* TemplatePlugin */ = {
+		7D1F5E9C2FB6B85200C7A1D1 /* NehirExtension */ = {
 			isa = PBXGroup;
 			children = (
-				7D1F5E9E2FB6B8F700C7A1D1 /* TemplatePlugin.swift */,
+				7D1F5E9E2FB6B8F700C7A1D1 /* NehirExtension.swift */,
 				7D1F5E9F2FB6B8F700C7A1D1 /* SampleCatalog.swift */,
 				7D1F5EA02FB6B8F700C7A1D1 /* Info.plist */,
 			);
-			path = TemplatePlugin;
+			path = NehirExtension;
 			sourceTree = "<group>";
 		};
 		7D1F5E9D2FB6B85200C7A1D1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				7D1F5E9B2FB6B85200C7A1D1 /* TemplatePlugin.framework */,
+				7D1F5E9B2FB6B85200C7A1D1 /* NehirExtension.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -58,9 +58,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		7D1F5E7A2FB6B6E500C7A1D1 /* TemplatePlugin */ = {
+		7D1F5E7A2FB6B6E500C7A1D1 /* NehirExtension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7D1F5E962FB6B7B600C7A1D1 /* Build configuration list for PBXNativeTarget "TemplatePlugin" */;
+			buildConfigurationList = 7D1F5E962FB6B7B600C7A1D1 /* Build configuration list for PBXNativeTarget "NehirExtension" */;
 			buildPhases = (
 				7D1F5E7D2FB6B71E00C7A1D1 /* Sources */,
 				7D1F5E7E2FB6B71E00C7A1D1 /* Frameworks */,
@@ -68,12 +68,12 @@
 			);
 			dependencies = (
 			);
-			name = TemplatePlugin;
+			name = NehirExtension;
 			packageProductDependencies = (
 				B7C30B214865D6FA4270AF97 /* TunaKit */,
 			);
-			productName = TemplatePlugin;
-			productReference = 7D1F5E9B2FB6B85200C7A1D1 /* TemplatePlugin.framework */;
+			productName = NehirExtension;
+			productReference = 7D1F5E9B2FB6B85200C7A1D1 /* NehirExtension.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -91,7 +91,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 7D1F5E662FB6B6A100C7A1D1 /* Build configuration list for PBXProject "TemplatePlugin" */;
+			buildConfigurationList = 7D1F5E662FB6B6A100C7A1D1 /* Build configuration list for PBXProject "NehirExtension" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -106,7 +106,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				7D1F5E7A2FB6B6E500C7A1D1 /* TemplatePlugin */,
+				7D1F5E7A2FB6B6E500C7A1D1 /* NehirExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -126,7 +126,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7D1F5EA12FB6B8F700C7A1D1 /* TemplatePlugin.swift in Sources */,
+				7D1F5EA12FB6B8F700C7A1D1 /* NehirExtension.swift in Sources */,
 				7D1F5EA22FB6B8F700C7A1D1 /* SampleCatalog.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -141,7 +141,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				INFOPLIST_FILE = TemplatePlugin/Info.plist;
+				INFOPLIST_FILE = NehirExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -149,7 +149,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.TemplatePlugin;
+				PRODUCT_BUNDLE_IDENTIFIER = com.logimox.NehirTunaExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -166,7 +166,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				INFOPLIST_FILE = TemplatePlugin/Info.plist;
+				INFOPLIST_FILE = NehirExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -174,7 +174,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.TemplatePlugin;
+				PRODUCT_BUNDLE_IDENTIFIER = com.logimox.NehirTunaExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -187,21 +187,21 @@
 		7D1F5E972FB6B7B600C7A1D1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = TemplatePlugin;
+				PRODUCT_NAME = NehirExtension;
 			};
 			name = Debug;
 		};
 		7D1F5E982FB6B7B600C7A1D1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = TemplatePlugin;
+				PRODUCT_NAME = NehirExtension;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		7D1F5E662FB6B6A100C7A1D1 /* Build configuration list for PBXProject "TemplatePlugin" */ = {
+		7D1F5E662FB6B6A100C7A1D1 /* Build configuration list for PBXProject "NehirExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7D1F5E972FB6B7B600C7A1D1 /* Debug */,
@@ -210,7 +210,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7D1F5E962FB6B7B600C7A1D1 /* Build configuration list for PBXNativeTarget "TemplatePlugin" */ = {
+		7D1F5E962FB6B7B600C7A1D1 /* Build configuration list for PBXNativeTarget "NehirExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7D1F5E672FB6B6A100C7A1D1 /* Debug */,
@@ -227,7 +227,7 @@
 			repositoryURL = "https://github.com/tunaformac/TunaKit";
 			requirement = {
 				kind = upToNextMinorVersion;
-				minimumVersion = 1.14.0;
+				minimumVersion = 1.19.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

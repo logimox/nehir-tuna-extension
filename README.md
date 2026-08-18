@@ -1,64 +1,51 @@
-# Tuna Extension Starter
+# Nehir Tuna Extension
 
-> [!IMPORTANT]
-> This repository describes the extension platform planned for Tuna 0.80. Tuna 0.80 has not been
-> released yet; the current public app is Tuna 0.78, so treat the instructions, compatibility
-> versions, and examples below as a release preview.
+Search and control [Nehir](https://github.com/apphane-dev/nehir), the Niri-style scrolling tiling window manager for macOS, from [Tuna](https://tunaformac.com/).
 
-Use this repository as a template for a new Tuna extension. It contains one extension declaration,
-one catalog, the released TunaKit binary package, and one command-line tool for local development.
+## Features
 
-## Start
+- Search every Nehir-managed window by app name or title.
+- **Focus Nehir Window** focuses a visible window.
+- **Navigate to Nehir Window** changes workspace when needed, then focuses the window.
+- Search every Nehir workspace.
+- **Switch to Nehir Workspace** changes to that workspace.
 
-1. Click **Use this template** on GitHub and clone your new repository.
-2. Replace `TemplatePlugin` and `TemplatePluginExtension` with your extension name.
-3. Change `PRODUCT_BUNDLE_IDENTIFIER` from `com.example.TemplatePlugin` to your own identifier.
-4. Open `TemplatePlugin.xcodeproj`, select your development team under Signing & Capabilities, and
-   edit the sample declaration and catalog.
-5. Build and install it:
+The extension calls the official `nehirctl` CLI. It never reads Nehir's IPC secret itself.
 
-```bash
-./scripts/tuna-extension install --restart
+## Requirements
+
+- macOS 15 or newer
+- Tuna 0.80 or newer
+- Nehir with IPC enabled
+- `nehirctl` at `/opt/homebrew/bin/nehirctl` (the Homebrew installation path)
+- Xcode 16 or newer to build locally
+
+Enable Nehir IPC in Settings → General, or add this to `~/.config/nehir/settings.toml`:
+
+```toml
+[general]
+ipcEnabled = true
 ```
 
-The command infers the only project and scheme in this repository. Other useful commands are:
+## Local development
 
-```bash
+```zsh
 ./scripts/tuna-extension build
-./scripts/tuna-extension logs
-./scripts/tuna-extension logs --last 20m
-./scripts/tuna-extension package
+DEV_BUNDLE_SIGN_IDENTITY=- ./scripts/tuna-extension install --restart
 ```
 
-The sample declaration sets explicit minimum Tuna and TunaKit versions. Change both to the oldest
-versions you actually test before distributing your extension; packaging fails if either is absent.
-For a one-off package, override the packaged compatibility values without editing the declaration:
+The development bundle is installed in:
 
-```bash
-MIN_TUNA=0.80 MIN_TUNAKIT=1.14.0 MIN_MACOS=15.0 \
-  ./scripts/tuna-extension package
+```text
+~/Library/Application Support/Tuna/ExtensionsDev/NehirExtension.framework
 ```
 
-Packaging requires a signed Release build. For an interactive setup, selecting your development
-team in Xcode is enough. For a non-interactive build, pass the team and the SHA-1 of an installed
-Apple Development identity:
+Tuna must restart after extension code changes. In Tuna, confirm the extension in Settings → Extensions, then enable **Nehir Windows & Workspaces** under Settings → Sources.
 
-```bash
-security find-identity -v -p codesigning
+## Compatibility note
 
-TUNA_DEVELOPMENT_TEAM=YOURTEAMID \
-TUNA_CODE_SIGN_IDENTITY=IDENTITY_SHA1 \
-  ./scripts/tuna-extension package
-```
-
-The package command reads the Swift declaration through Tuna. It finds Tuna in `/Applications` or
-`~/Applications`; when testing against another build, set `TUNA_BINARY` to that executable.
-
-The public store is curated during the beta. This starter creates the package for review but does
-not include store upload or release commands.
-
-Read the extension development guide at https://tunaformac.com/docs/extension-development.
+Nehir's IPC protocol is explicitly unstable. This extension targets the Nehir version installed and tested locally; update and retest it after Nehir upgrades.
 
 ## License
 
-This starter is available under the [MIT License](LICENSE).
+MIT. The Tuna extension template is also MIT-licensed.
