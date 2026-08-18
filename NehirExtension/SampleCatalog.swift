@@ -88,7 +88,7 @@ final class NehirActionsCatalog: NSObject, ActionCatalog {
   private lazy var navigateToWindow: CatalogAction = windowAction(id: "navigate-to-window", title: "Navigate to Nehir Window", operation: "navigate")
 
   private func windowAction(id: String, title: String, operation: String) -> CatalogAction {
-    let action = PredicateAwareAction(id: id, title: title, type: .action) { subject, _ in
+    let action = PredicateAwareAction(id: id, title: title) { subject, _ in
       guard let window = subject as? NehirWindowItem else { return .failure("Select a Nehir window.") }
       do {
         _ = try NehirCLI.run(["window", operation, window.windowID])
@@ -101,7 +101,7 @@ final class NehirActionsCatalog: NSObject, ActionCatalog {
   }
 
   private lazy var switchWorkspace: CatalogAction = {
-    let action = PredicateAwareAction(id: "switch-workspace", title: "Switch to Nehir Workspace", type: .action) { subject, _ in
+    let action = PredicateAwareAction(id: "switch-workspace", title: "Switch to Nehir Workspace") { subject, _ in
       guard let workspace = subject as? NehirWorkspaceItem else { return .failure("Select a Nehir workspace.") }
       do {
         _ = try NehirCLI.run(["command", "switch-workspace", workspace.workspaceNumber])
