@@ -59,7 +59,7 @@ final class NehirWindowItem: CatalogEntity, @unchecked Sendable {
     self.windowID = windowID
     self.detailText = detail
     super.init(id: "window:\(windowID)", title: title, path: nil)
-    typeID = .entity
+    typeID = .nehirWindow
   }
 
   override var detail: String? { detailText }
@@ -116,19 +116,21 @@ final class NehirActionsCatalog: NSObject, ActionCatalog {
 
   private lazy var moveFocusedWindowToWorkspace: CatalogAction = {
     let action = PredicateAwareAction(
-      id: "move-focused-window-to-workspace",
-      title: "Move Focused Window to Nehir Workspace"
-    ) { workspace, _ in
-      guard let workspace = workspace as? NehirWorkspaceItem else { return .failure("Select a Nehir workspace.") }
+      id: "move-window-to-workspace",
+      title: "Move Nehir Window to Workspace"
+    ) { window, target in
+      guard let window = window as? NehirWindowItem else { return .failure("Select a Nehir window.") }
+      guard let workspace = target as? NehirWorkspaceItem else { return .failure("Choose a destination Nehir workspace.") }
       do {
-        // Tuna takes focus while its result panel is open. Re-focus the Nehir
-        // window that was active immediately before Tuna became focused.
-        _ = try NehirCLI.run(["command", "focus", "previous"])
+        // Nehir's IPC has no move-by-window-ID action. Focus the explicitly
+        // selected window through IPC, then move that focused window.
+        _ = try NehirCLI.run(["window", "focus", window.windowID])
         _ = try NehirCLI.run(["command", "move-to-workspace", workspace.workspaceNumber])
         return .success
       } catch { return .failure(error.localizedDescription) }
     }
-    action.subjectPredicate = { $0 is NehirWorkspaceItem }
+    action.subjectPredicate = { $0 is NehirWindowItem }
+    action.targetPredicate = { $0 is NehirWorkspaceItem }
     action.systemSymbolName = "rectangle.portrait.and.arrow.forward"
     return action
   }()

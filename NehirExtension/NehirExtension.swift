@@ -2,6 +2,7 @@ import Foundation
 import TunaKit
 
 extension TypeID {
+  static let nehirWindow = TypeID("com.logimox.nehir.window")
   static let nehirWorkspace = TypeID("com.logimox.nehir.workspace")
 }
 
@@ -42,6 +43,11 @@ public final class NehirExtension: Extension {
       ],
       typeRegistrations: [
         TypeRegistrationDefinition(
+          typeID: .nehirWindow,
+          displayName: "Nehir Window",
+          inheritsFrom: [.entity]
+        ),
+        TypeRegistrationDefinition(
           typeID: .nehirWorkspace,
           displayName: "Nehir Workspace",
           inheritsFrom: [.entity]
@@ -51,8 +57,13 @@ public final class NehirExtension: Extension {
         DefaultActionRankingDefinition(
           typeID: .nehirWorkspace,
           actions: [
-            ActionReference(catalogIdentifier: "nehir.actions", actionID: "switch-workspace"),
-            ActionReference(catalogIdentifier: "nehir.actions", actionID: "move-focused-window-to-workspace")
+            ActionReference(catalogIdentifier: "nehir.actions", actionID: "switch-workspace")
+          ]
+        ),
+        DefaultActionRankingDefinition(
+          typeID: .nehirWindow,
+          actions: [
+            ActionReference(catalogIdentifier: "nehir.actions", actionID: "move-window-to-workspace")
           ]
         )
       ]
