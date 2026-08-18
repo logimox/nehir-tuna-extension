@@ -60,25 +60,25 @@ jobs:
       - name: Resolve the pinned public TunaKit package
         run: |
           xcodebuild -resolvePackageDependencies \
-            -project TemplatePlugin.xcodeproj \
-            -scheme TemplatePlugin \
+            -project NehirExtension.xcodeproj \
+            -scheme NehirExtension \
             -derivedDataPath build/dd \
             -onlyUsePackageVersionsFromResolvedFile \
             -disablePackageRepositoryCache
 
-      - name: Build the starter
+      - name: Build the extension
         run: |
           product="$(./scripts/tuna-extension build --release)"
           codesign --verify --strict "$product"
 
-      - name: Package the starter
+      - name: Package the extension
         if: matrix.package
         run: |
           declaration_reader="$RUNNER_TEMP/tuna-declaration"
           printf '%s\n' \
             '#!/usr/bin/env python3' \
             'import json' \
-            'print(json.dumps({"identifier": "com.example.TemplatePlugin", "name": "Sample Extension", "author": "Your Name", "description": "Describe what your extension provides.", "icon_name": "puzzlepiece.extension", "type": "extension", "compatibility": {"min_tuna": "0.80", "min_tunakit": "1.14.0"}}))' \
+            'print(json.dumps({"identifier": "com.logimox.NehirTunaExtension", "name": "Nehir", "author": "Andreas F", "description": "Search and control Nehir workspaces and windows.", "icon_name": "rectangle.3.group", "type": "extension", "compatibility": {"min_tuna": "0.80", "min_tunakit": "1.19.0"}}))' \
             > "$declaration_reader"
           chmod +x "$declaration_reader"
 
@@ -91,26 +91,26 @@ jobs:
           from pathlib import Path
           from zipfile import ZipFile
 
-          package = Path("dist/store/com.example.TemplatePlugin-1.0.tunaextension")
+          package = Path("dist/store/com.logimox.NehirTunaExtension-1.0.tunaextension")
           item = json.loads(Path("build/package-item.json").read_text())
 
           assert package.is_file()
-          assert item["id"] == "com.example.TemplatePlugin"
+          assert item["id"] == "com.logimox.NehirTunaExtension"
           assert item["version"] == "1.0"
           assert item["compatibility"]["min_tuna"] == "0.80"
-          assert item["compatibility"]["min_tunakit"] == "1.14.0"
+          assert item["compatibility"]["min_tunakit"] == "1.19.0"
           assert item["download"]["checksum_sha256"] == hashlib.sha256(
               package.read_bytes()
           ).hexdigest()
 
           with ZipFile(package) as archive:
               manifest = json.loads(archive.read("tunaextension.json"))
-              assert manifest["id"] == "com.example.TemplatePlugin"
+              assert manifest["id"] == "com.logimox.NehirTunaExtension"
               assert manifest["compatibility"]["min_tuna"] == "0.80"
-              assert manifest["compatibility"]["min_tunakit"] == "1.14.0"
+              assert manifest["compatibility"]["min_tunakit"] == "1.19.0"
               assert "payload.sha256" in archive.namelist()
               assert any(
-                  name.startswith("Payload/TemplatePlugin.framework/")
+                  name.startswith("Payload/NehirExtension.framework/")
                   for name in archive.namelist()
               )
           PY

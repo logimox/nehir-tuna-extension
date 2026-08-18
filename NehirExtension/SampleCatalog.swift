@@ -114,12 +114,24 @@ final class NehirActionsCatalog: NSObject, ActionCatalog {
     command: "switch-workspace"
   )
 
-  private lazy var moveFocusedWindowToWorkspace: CatalogAction = workspaceAction(
-    id: "move-focused-window-to-workspace",
-    title: "Move Focused Window to Nehir Workspace",
-    symbol: "rectangle.portrait.and.arrow.forward",
-    command: "move-to-workspace"
-  )
+  private lazy var moveFocusedWindowToWorkspace: CatalogAction = {
+    let action = PredicateAwareAction(
+      id: "move-focused-window-to-workspace",
+      title: "Move Focused Window to Nehir Workspace"
+    ) { workspace, _ in
+      guard let workspace = workspace as? NehirWorkspaceItem else { return .failure("Select a Nehir workspace.") }
+      do {
+        // Tuna takes focus while its result panel is open. Re-focus the Nehir
+        // window that was active immediately before Tuna became focused.
+        _ = try NehirCLI.run(["command", "focus", "previous"])
+        _ = try NehirCLI.run(["command", "move-to-workspace", workspace.workspaceNumber])
+        return .success
+      } catch { return .failure(error.localizedDescription) }
+    }
+    action.subjectPredicate = { $0 is NehirWorkspaceItem }
+    action.systemSymbolName = "rectangle.portrait.and.arrow.forward"
+    return action
+  }()
 
   private func workspaceAction(id: String, title: String, symbol: String, command: String) -> CatalogAction {
     let action = PredicateAwareAction(id: id, title: title) { subject, _ in
