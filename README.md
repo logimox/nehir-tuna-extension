@@ -7,8 +7,9 @@ Search and control [Nehir](https://github.com/apphane-dev/nehir), the Niri-style
 - Search every Nehir-managed window by app name or title.
 - **Focus Nehir Window** focuses a visible window.
 - **Navigate to Nehir Window** changes workspace when needed, then focuses the window.
-- Search every Nehir workspace.
-- **Switch to Nehir Workspace** changes to that workspace.
+- A dedicated **Nehir Workspaces** source lists every workspace, including its window count and current-state marker.
+- **Switch to Nehir Workspace** is the default action for a workspace.
+- **Move Focused Window to Nehir Workspace** moves the current Nehir-focused window to the selected workspace.
 
 The extension calls the official `nehirctl` CLI. It never reads Nehir's IPC secret itself.
 

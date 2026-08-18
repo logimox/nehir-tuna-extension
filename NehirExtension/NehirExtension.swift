@@ -1,6 +1,10 @@
 import Foundation
 import TunaKit
 
+extension TypeID {
+  static let nehirWorkspace = TypeID("com.logimox.nehir.workspace")
+}
+
 @objc(NehirExtension)
 public final class NehirExtension: Extension {
   public override var declaration: ExtensionDeclaration? {
@@ -13,13 +17,19 @@ public final class NehirExtension: Extension {
       ),
       compatibility: ExtensionDeclarationCompatibility(
         minTuna: "0.80",
-        minTunaKit: "1.14.0"
+        minTunaKit: "1.19.0"
       ),
       catalogs: [
         CatalogDeclaration(
-          id: "nehir",
+          id: "nehir.windows",
           type: NehirCatalog.self,
-          name: "Nehir Windows & Workspaces",
+          name: "Nehir Windows",
+          enabledByDefault: true
+        ),
+        CatalogDeclaration(
+          id: "nehir.workspaces",
+          type: NehirCatalog.self,
+          name: "Nehir Workspaces",
           enabledByDefault: true
         )
       ],
@@ -28,6 +38,22 @@ public final class NehirExtension: Extension {
           id: "nehir.actions",
           type: NehirActionsCatalog.self,
           name: "Nehir Actions"
+        )
+      ],
+      typeRegistrations: [
+        TypeRegistrationDefinition(
+          typeID: .nehirWorkspace,
+          displayName: "Nehir Workspace",
+          inheritsFrom: [.entity]
+        )
+      ],
+      defaultActionRankings: [
+        DefaultActionRankingDefinition(
+          typeID: .nehirWorkspace,
+          actions: [
+            ActionReference(catalogIdentifier: "nehir.actions", actionID: "switch-workspace"),
+            ActionReference(catalogIdentifier: "nehir.actions", actionID: "move-focused-window-to-workspace")
+          ]
         )
       ]
     )

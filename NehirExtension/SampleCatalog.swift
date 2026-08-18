@@ -15,9 +15,14 @@ final class NehirCatalog: NSObject, Catalog {
 
   func scan() async {
     do {
-      let windows = try NehirCLI.run(["query", "windows", "--format", "json"])
-      let workspaces = try NehirCLI.run(["query", "workspaces", "--format", "json"])
-      objects = try NehirItemFactory.makeItems(windowsJSON: windows, workspacesJSON: workspaces)
+      switch identifier {
+      case "nehir.workspaces":
+        let workspaces = try NehirCLI.run(["query", "workspaces", "--format", "json"])
+        objects = try NehirItemFactory.makeWorkspaceItems(workspacesJSON: workspaces)
+      default:
+        let windows = try NehirCLI.run(["query", "windows", "--format", "json"])
+        objects = try NehirItemFactory.makeWindowItems(windowsJSON: windows)
+      }
     } catch {
       objects = [CatalogItem(id: "ipc-unavailable", title: "Nehir IPC is unavailable", type: .entity)]
     }
@@ -63,20 +68,22 @@ final class NehirWindowItem: CatalogEntity, @unchecked Sendable {
 final class NehirWorkspaceItem: CatalogEntity, @unchecked Sendable {
   /// Nehir commands switch by numeric workspace number, not its persistent UUID.
   let workspaceNumber: String
+  let detailText: String
 
-  init(workspaceID: String, workspaceNumber: String, title: String) {
+  init(workspaceID: String, workspaceNumber: String, title: String, detail: String) {
     self.workspaceNumber = workspaceNumber
+    self.detailText = detail
     super.init(id: "workspace:\(workspaceID)", title: title, path: nil)
-    typeID = .entity
+    typeID = .nehirWorkspace
   }
 
-  override var detail: String? { "Nehir workspace" }
+  override var detail: String? { detailText }
 }
 
 final class NehirActionsCatalog: NSObject, ActionCatalog {
   let identifier: String
   let name: String
-  private(set) lazy var actions: [CatalogAction] = [focusWindow, navigateToWindow, switchWorkspace]
+  private(set) lazy var actions: [CatalogAction] = [focusWindow, navigateToWindow, switchWorkspace, moveFocusedWindowToWorkspace]
 
   required init(definition: ActionCatalogDefinition) {
     identifier = definition.identifier
@@ -100,41 +107,67 @@ final class NehirActionsCatalog: NSObject, ActionCatalog {
     return action
   }
 
-  private lazy var switchWorkspace: CatalogAction = {
-    let action = PredicateAwareAction(id: "switch-workspace", title: "Switch to Nehir Workspace") { subject, _ in
+  private lazy var switchWorkspace: CatalogAction = workspaceAction(
+    id: "switch-workspace",
+    title: "Switch to Nehir Workspace",
+    symbol: "rectangle.3.group",
+    command: "switch-workspace"
+  )
+
+  private lazy var moveFocusedWindowToWorkspace: CatalogAction = workspaceAction(
+    id: "move-focused-window-to-workspace",
+    title: "Move Focused Window to Nehir Workspace",
+    symbol: "rectangle.portrait.and.arrow.forward",
+    command: "move-to-workspace"
+  )
+
+  private func workspaceAction(id: String, title: String, symbol: String, command: String) -> CatalogAction {
+    let action = PredicateAwareAction(id: id, title: title) { subject, _ in
       guard let workspace = subject as? NehirWorkspaceItem else { return .failure("Select a Nehir workspace.") }
       do {
-        _ = try NehirCLI.run(["command", "switch-workspace", workspace.workspaceNumber])
+        _ = try NehirCLI.run(["command", command, workspace.workspaceNumber])
         return .success
       } catch { return .failure(error.localizedDescription) }
     }
     action.subjectPredicate = { $0 is NehirWorkspaceItem }
-    action.systemSymbolName = "rectangle.3.group"
+    action.systemSymbolName = symbol
     return action
-  }()
+  }
 }
 
 private enum NehirItemFactory {
-  static func makeItems(windowsJSON: Data, workspacesJSON: Data) throws -> [CatalogItem] {
+  static func makeWindowItems(windowsJSON: Data) throws -> [CatalogItem] {
     let windows = try JSONSerialization.jsonObject(with: windowsJSON) as? [String: Any] ?? [:]
-    let workspaces = try JSONSerialization.jsonObject(with: workspacesJSON) as? [String: Any] ?? [:]
-    var items: [CatalogItem] = []
-
-    for row in payloadRows(windows) {
-      guard let id = string(row["id"]) else { continue }
+    return payloadRows(windows).compactMap { row in
+      guard let id = string(row["id"]) else { return nil }
       let app = objectString(row["app"], key: "name") ?? "Unknown App"
       let title = string(row["title"]) ?? "Untitled"
       let workspace = objectString(row["workspace"], key: "displayName") ?? ""
-      items.append(NehirWindowItem(windowID: id, title: "\(app): \(title)", detail: workspace.isEmpty ? "Nehir window" : "Workspace \(workspace)"))
+      return NehirWindowItem(
+        windowID: id,
+        title: "\(app): \(title)",
+        detail: workspace.isEmpty ? "Nehir window" : "Workspace \(workspace)"
+      )
     }
+  }
 
-    for row in payloadRows(workspaces) {
-      guard let id = string(row["id"]) else { continue }
-      let title = string(row["displayName"]) ?? string(row["rawName"]) ?? "Workspace \(id)"
-      let number = string(row["number"]) ?? title
-      items.append(NehirWorkspaceItem(workspaceID: id, workspaceNumber: number, title: title))
+  static func makeWorkspaceItems(workspacesJSON: Data) throws -> [CatalogItem] {
+    let workspaces = try JSONSerialization.jsonObject(with: workspacesJSON) as? [String: Any] ?? [:]
+    return payloadRows(workspaces).compactMap { row in
+      guard let id = string(row["id"]) else { return nil }
+      let name = string(row["displayName"]) ?? string(row["rawName"]) ?? id
+      let number = string(row["number"]) ?? name
+      let current = bool(row["isCurrent"]) == true
+      let count = objectNumber(row["counts"], key: "total") ?? 0
+      let title = "Nehir Workspace \(name)"
+      let detail = "\(count) window\(count == 1 ? "" : "s")\(current ? " · Current" : "")"
+      return NehirWorkspaceItem(
+        workspaceID: id,
+        workspaceNumber: number,
+        title: title,
+        detail: detail
+      )
     }
-    return items
   }
 
   private static func payloadRows(_ response: [String: Any]) -> [[String: Any]] {
@@ -152,6 +185,15 @@ private enum NehirItemFactory {
   private static func objectString(_ value: Any?, key: String) -> String? {
     guard let object = value as? [String: Any] else { return nil }
     return string(object[key])
+  }
+
+  private static func objectNumber(_ value: Any?, key: String) -> Int? {
+    guard let object = value as? [String: Any], let number = object[key] as? NSNumber else { return nil }
+    return number.intValue
+  }
+
+  private static func bool(_ value: Any?) -> Bool? {
+    (value as? NSNumber)?.boolValue
   }
 
   private static func string(_ value: Any?) -> String? {
